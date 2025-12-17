@@ -1,103 +1,83 @@
-import random # Importa el módulo 'random', necesario para que la computadora elija su jugada.
+import random # Importamos la librería para que la PC pueda elegir su jugada al azar.
 
-# -------------------------------------------------------------
-# 1. Funciones de Mapeo y Lógica
-# -------------------------------------------------------------
+# --- SECCIÓN DE FUNCIONES (Definimos nuestras herramientas personalizadas) ---
 
-def obtener_eleccion_mapeada(opcion_num):
-    """
-    Traduce la entrada numérica del usuario a la jugada de texto (Piedra, Papel o Tijera)
-    utilizando un diccionario para un mapeo eficiente (en lugar de if/elif anidados).
-    """
-    # Diccionario para mapear la entrada (string) a la jugada (string).
-    mapeo = {
-        "1": "Piedra",
-        "2": "Papel",
-        "3": "Tijera"
-    }
-    # .get() es seguro: si la opción no existe, devuelve None.
-    return mapeo.get(opcion_num)
+# Función para convertir el número que escribe el usuario a una palabra real.
+def convertir_opcion(numero): # Usamos 'def' para crear la función llamada 'convertir_opcion'.
+    # Creamos una LISTA con las palabras en el orden correcto.
+    # El índice 0 es Piedra, el 1 es Papel y el 2 es Tijera.
+    opciones = ["Piedra", "Papel", "Tijera"] 
+    
+    # Transformamos el texto que ingresó el usuario a un número entero.
+    n = int(numero) 
+    
+    # Buscamos en la LISTA la palabra usando el número (restamos 1 porque Python cuenta desde 0).
+    palabra = opciones[n - 1] 
+    return palabra # Devolvemos la palabra encontrada al lugar donde se llamó la función.
 
-def determinar_ganador(usuario, computadora):
-    """
-    Contiene la lógica central del juego para determinar el resultado de la ronda.
-    Recibe las jugadas en formato de texto (string).
-    """
-    # Lista (list) de tuplas para definir las reglas de victoria: (Ganador, Perdedor)
-    reglas_victoria = [
-        ("Piedra", "Tijera"), # La Piedra gana a la Tijera
-        ("Papel", "Piedra"),  # El Papel gana a la Piedra
-        ("Tijera", "Papel")   # La Tijera gana al Papel
+# Función para determinar quién es el ganador comparando ambas jugadas.
+def quien_gana(jugador, pc): # Usamos 'def' para crear la función 'quien_gana'.
+    # Usamos una LISTA que guarda varias TUPLAS para definir las reglas de victoria.
+    # Cada TUPLA representa: (Elemento que Gana, Elemento que Pierde).
+    reglas = [
+        ("Piedra", "Tijera"), # Tupla: Piedra vence a Tijera.
+        ("Papel", "Piedra"),  # Tupla: Papel vence a Piedra.
+        ("Tijera", "Papel")   # Tupla: Tijera vence a Papel.
     ]
-
-    if usuario == computadora:
-        return "empate" # Retorna "empate" si ambas jugadas son iguales.
     
-    # Comprueba si la tupla de la jugada del usuario está en la lista de reglas_victoria.
-    elif (usuario, computadora) in reglas_victoria:
-        return "usuario" # Retorna "usuario" si la combinación cumple una regla de victoria.
-        
+    # Si ambas palabras son exactamente iguales, devolvemos un empate.
+    if jugador == pc:
+        return "empate" 
+    
+    # Creamos una TUPLA que junta la jugada del usuario y de la PC: (Usuario, PC).
+    duelo_actual = (jugador, pc) 
+    
+    # Comprobamos si la TUPLA 'duelo_actual' existe dentro de nuestra LISTA de 'reglas'.
+    if duelo_actual in reglas:
+        return "usuario" # Si la combinación está en las reglas, el usuario gana.
     else:
-        return "computadora" # Si no es empate ni victoria del usuario, gana la computadora.
+        return "computadora" # Si no es empate ni ganó el usuario, gana la computadora.
 
-# -------------------------------------------------------------
-# 2. Función Principal del Juego
-# -------------------------------------------------------------
+# --- CUERPO PRINCIPAL DEL PROGRAMA (Donde corre el juego) ---
 
-def jugar_ronda():
-    """
-    Ejecuta una sola ronda del juego: solicita la entrada, calcula la jugada de la computadora 
-    y anuncia el resultado.
-    """
-    print("............................................")
-    print("--- MENÚ ---")
-    print("1. Piedra")
-    print("2. Papel")
-    print("3. Tijera")
-    print("4. Salir")
-    print("............................................")
+jugar = True # Variable booleana para mantener el ciclo encendido.
 
-    # Solicita la elección del usuario (se recibe como string).
-    opcion_usuario = input("Ingresa tu elección (1-4): ")
+print("¡Hola! Bienvenido al juego de Piedra, Papel o Tijera.") # Mensaje de bienvenida.
 
-    if opcion_usuario == "4":
-        return False, "Gracias por jugar. ¡SALIENDO DEL JUEGO! 👋" # Retorna False para detener el bucle
+while jugar == True: # Mientras la variable sea verdadera, el juego se repetirá.
+    print("---------------------------------------") # Línea divisoria visual.
+    print("1. Piedra | 2. Papel | 3. Tijera | 4. Salir") # Mostramos las opciones del menú.
     
-    eleccion_usuario = obtener_eleccion_mapeada(opcion_usuario) # Llama a la función de mapeo.
+    eleccion = input("Escribe el número de tu jugada: ") # Pedimos al usuario su elección.
     
-    if eleccion_usuario is None:
-        return True, "❌ Opción no VALIDA. Por favor, ingresa un número válido (1, 2, 3 o 4)." # Retorna True para seguir jugando
-    
-    # Define la lista de opciones disponibles para la computadora.
-    opciones_juego = ["Piedra", "Papel", "Tijera"] 
-    # La computadora elige un elemento al azar de la lista.
-    eleccion_computadora = random.choice(opciones_juego) 
-    
-    # Muestra las jugadas
-    print(f"Tú elegiste: **{eleccion_usuario}**")
-    print(f"La computadora eligió: **{eleccion_computadora}**")
-    
-    # Llama a la función de lógica para determinar el ganador.
-    ganador = determinar_ganador(eleccion_usuario, eleccion_computadora) 
-    
-    # Anuncia el resultado
-    if ganador == "usuario":
-        resultado_msg = "🎉 ¡GANO EL JUEGO!"
-    elif ganador == "computadora":
-        resultado_msg = "😞 La computadora ganó ESTE JUEGO"
-    else:
-        resultado_msg = "🤝 ¡ES UN EMPATE!"
+    # Revisamos primero si el usuario decidió cerrar el programa.
+    if eleccion == "4":
+        print("Gracias por jugar, ¡adiós!") # Mensaje de despedida.
+        jugar = False # Apagamos el ciclo cambiando la variable a Falsa.
         
-    return True, resultado_msg # Retorna True para continuar y el mensaje de resultado.
-
-# -------------------------------------------------------------
-# 3. Punto de Entrada del Programa (Main Loop)
-# -------------------------------------------------------------
-
-print("👋 ¡Bienvenido al juego de Piedra, Papel o Tijera!")
-
-jugar = True # Inicializa la variable de control booleana.
-while jugar: # Bucle principal que se ejecuta mientras 'jugar' sea True.
-    # Llama a la función que ejecuta la ronda y obtiene el estado de continuación y el mensaje.
-    jugar, mensaje_ronda = jugar_ronda() 
-    print(mensaje_ronda) # Imprime el mensaje (resultado o error/salida).
+    # Validamos que el número ingresado sea 1, 2 o 3 para evitar errores.
+    elif eleccion in ["1", "2", "3"]:
+        
+        # Llamamos a nuestra FUNCIÓN para traducir el número a una palabra (Piedra, Papel o Tijera).
+        usuario = convertir_opcion(eleccion) 
+        
+        # Creamos una LISTA de opciones para que la computadora elija una.
+        lista_pc = ["Piedra", "Papel", "Tijera"] 
+        computadora = random.choice(lista_pc) # La PC elige un elemento al azar de la LISTA.
+        
+        print(f"Tú: {usuario} vs PC: {computadora}") # Mostramos qué eligió cada uno.
+        
+        # Llamamos a la FUNCIÓN 'quien_gana' para procesar el resultado usando TUPLAS.
+        resultado = quien_gana(usuario, computadora) 
+        
+        # Estructura condicional para mostrar el mensaje según el resultado obtenido.
+        if resultado == "usuario":
+            print("¡Ganaste esta ronda! 🎉") # Mensaje de victoria.
+        elif resultado == "computadora":
+            print("La computadora te ganó 😞") # Mensaje de derrota.
+        else:
+            print("¡Es un empate! 🤝") # Mensaje de empate.
+            
+    else:
+        # Si el usuario ingresa cualquier otra cosa que no sea 1, 2, 3 o 4.
+        print("Opción no válida, intenta de nuevo por favor")
